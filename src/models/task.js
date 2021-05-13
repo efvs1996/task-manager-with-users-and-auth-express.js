@@ -1,6 +1,5 @@
 const mongoose = require("mongoose")
 
-
 const taskSchema = new mongoose.Schema({
     name: {
         type : String,
@@ -20,16 +19,6 @@ const taskSchema = new mongoose.Schema({
     timestamps : true
 })
 
-
-
-taskSchema.pre('save', async function (next) {
-    const task = this
-
-    if (task.isModified('name')){
-        console.log("Se modifico el nombre, el nuevo nombre es ", task.name)
-    }
-    await next()
-})
  
 const Task = mongoose.model('Task', taskSchema)
 

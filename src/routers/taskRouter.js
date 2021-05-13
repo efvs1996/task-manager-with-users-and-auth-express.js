@@ -1,15 +1,16 @@
 const express = require('express')
 const Task = require('../models/task.js')
 const auth = require('../middleware/auth')
+const { response } = require('express')
 const router = new express.Router()
 
-router.get('/tasks', auth, async (req,res) => {
+router.get('/tasks', auth, async (req, res) => {
     const match = {}
     const sort = {}
 
-    if (req.query.completed){
-        match.completed = req.query.completed === "true"
-    } 
+    if (req.query.completed) {
+        match.completed = req.query.completed === 'true'
+    }
 
     if (req.query.sortBy) {
         const parts = req.query.sortBy.split(':')
@@ -17,38 +18,38 @@ router.get('/tasks', auth, async (req,res) => {
     }
 
     try {
-        // const tasks = await Task.find(match)
         await req.user.populate({
-            path : 'tasks',
+            path: 'tasks',
             match,
-            options : {
-                limit : parseInt(req.query.limit),
-                skip : parseInt(req.query.skip)
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip),
+                sort
             }
         }).execPopulate()
         res.send(req.user.tasks)
-        // res.send(tasks)
-    } catch(e){
-        res.send("hay un error")
-    }
- })
- 
-router.get('/tasks/:id', auth, async(req, res) => {
-    const _id = req.params.id
-    console.log(_id)
-
-    try{ 
-        const task = await Task.findOne({ _id, owner: req.user._id })
-        
-        if (!task) {
-            return res.status(404).send("Esta tarea no pertence a este usuario, falta de acceso")
-        }
-
-        res.send(task)
-    } catch (e){
+    } catch (e) {
         res.status(500).send()
     }
 })
+
+ 
+// router.get('/tasks', auth, async(req, res) => {
+//     const _id = req.params.id
+//     console.log(_id)
+
+//     try{ 
+//         const task = await Task.findOne({ _id, owner: req.user._id })
+        
+//         if (!task) {
+//             return res.status(404).send("Esta tarea no pertence a este usuario, falta de acceso")
+//         }
+
+//         res.send(task)
+//     } catch. (e){
+//         res.status(500).send()
+//     }
+// })
 router.delete('/tasks/:id', auth, async (req, res) => {
     const _id = req.params.id
     try {

@@ -61,8 +61,7 @@ router.post('/users', async (req, res) => {
         await user.generateAuthToken()
         sendWelcomeEmail(user.email, user.name)
         await user.save()
-        res.send(user)
-        console.log("Usuario insertado ", user)
+        res.status(201).send(user)
     } catch (e) {
         res.send("Este usuario ya existe")
     }
@@ -112,28 +111,21 @@ router.post('/users/login', async (req, res) => {
         res.status(400).send("error")
     }
 })
-
-
-router.patch('/users/me', auth,  async (req,res) => {
+router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name', 'email', 'password', 'age']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-    if (!isValidOperation){
-        res.status(400).send({ error : 'Invalid Updates'})
+
+    if (!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid updates!' })
     }
-    try{
-        
-        updates.forEach((update) => user[update] = req.body[update])
+
+    try {
+        updates.forEach((update) => req.user[update] = req.body[update])
         await req.user.save()
-        /*const user = await User.findByIdAndUpdate( req.params.id, req.body, { new: true} )
-        if (!user){
-            console.log("Este es el if para probar")
-        return res.send("hay un error")*/
-        console.log("El usuario se ingreso con exito")
-        res.send(user)
-    }catch(e){
+        res.send(req.user)
+    } catch (e) {
         res.status(400).send(e)
-        console.log("No se pudo ingresar por un error 2")
     }
 })
 
